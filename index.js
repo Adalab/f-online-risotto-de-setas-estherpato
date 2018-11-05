@@ -1,11 +1,14 @@
-
 'use strict';
 
 let recipeName = document.querySelector('.recipe-name');
 let ingredientsList = document.querySelector('.ingredients-list');
 const selectAllButton = document.querySelector('.select-all-btn');
 const unselectAllButton = document.querySelector('.unselect-all-btn');
-
+let itemsNumber = document.querySelector('.items-number');
+let printPrice = document.querySelector('.price');
+let printShipping = document.querySelector('.shipping');
+let printTotal = document.querySelector('.total');
+let buyButton = document.querySelector('.buy-btn');
 
 let price = 0;
 let total = 0;
@@ -14,10 +17,13 @@ let quantity = 1;
 let multipleItems = 0;
 let shipping = 0;
 
-function sumUp(price) {
-    shipping = 7;
-    total = price + shipping;
-    console.log('total', total)
+
+function printText(items, price, shipping, total) {
+    itemsNumber.innerHTML = 'Items:' + ' ' + items;
+    printPrice.innerHTML = 'Subtotal' + ' ' + price.toFixed(2) + ' ' + '€';
+    printShipping.innerHTML = 'Gastos de envío' + ' ' + shipping + ' ' + '€';
+    printTotal.innerHTML = 'Total' + ' ' + total.toFixed(2) + ' ' + '€';
+    buyButton.innerHTML = 'Comprar ingredientes:' + ' ' + total.toFixed(2) + ' ' + '€';
 }
 
 function getMultiply() {
@@ -25,36 +31,24 @@ function getMultiply() {
         alert('solo puedes seleccionar uno');
         this.value = 1;
     }
-
-
-    //     let checkboxes = document.querySelectorAll('.ingredients-checkbox');
-    //     const itemPriceAttr = this.attributes.getNamedItem('price');
-    //     const inputCounterWhich = this.attributes.getNamedItem('input-which');
-    //     const inputCounterNumber = parseInt(inputCounterWhich);
-    //     console.log(inputCounterNumber)
-    //     const itemPrice = parseFloat(itemPriceAttr.value);
-    //     for (let i = 0; i < checkboxes.length; i++) {
-    //         const inputCheckWhich = checkboxes[i].attributes.getNamedItem('input-which');
-    //         const inputCheckNumber = parseInt(inputCheckWhich)
-    //         console.log(inputCheckNumber)
-    //         if (inputCheckNumber === inputCounterNumber) {
-    //             console.log('hey')
-    //             //     if (inputCheckWhich === inputCounterWhich) {
-    //             //         quantity = parseInt(this.value);
-    //             //         multipleItems = itemPrice * quantity;
-    //             //         sumUp(multipleItems);
-    //         }
-    //     }
 }
 
 function getChecked() {
     itemPrice = parseFloat(this.value);
+    shipping = 7;
     if (this.checked) {
         price += itemPrice
-        sumUp(price);
+        total = price + shipping;
+        printText(1, price, shipping, total);
     } else if (!this.checked) {
         price -= itemPrice
-        sumUp(price);
+        if (price === 0) {
+            shipping = 0
+            total = price + shipping;
+        } else {
+            total = price + shipping;
+        }
+        printText(1, price, shipping, total);
     }
 }
 
@@ -80,6 +74,7 @@ function paintRecipeData(recipe) {
         newCounter.min = 0;
         newCounter.setAttribute('price', ingredient.price);
         newCounter.setAttribute('input-which', index);
+        newCounter.classList.add('ingredients-counter')
         newCounter.addEventListener('change', getMultiply);
 
         const newProduct = document.createElement('p');
@@ -117,7 +112,12 @@ function selectAllHandler(e) {
     let checkboxes = document.querySelectorAll('.ingredients-checkbox');
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = true;
+        itemPrice = parseFloat(checkboxes[i].value)
+        price += itemPrice;
     }
+    shipping = 7;
+    total = price + shipping;
+    printText(1, price, shipping, total)
 }
 
 function unselectAllHandler(e) {
@@ -125,6 +125,16 @@ function unselectAllHandler(e) {
     let checkboxes = document.querySelectorAll('.ingredients-checkbox');
     for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = false;
+    }
+    printText(0, 0, 0, 0)
+}
+
+function purchaseHandler(e) {
+    e.preventDefault();
+    if (total !== 0) {
+        alert('Tu compra ha sido realizada');
+    } else {
+        alert('Por favor, selecciona al menos un producto');
     }
 }
 
@@ -141,3 +151,4 @@ getRecipe();
 
 selectAllButton.addEventListener('click', selectAllHandler);
 unselectAllButton.addEventListener('click', unselectAllHandler);
+buyButton.addEventListener('click', purchaseHandler);
